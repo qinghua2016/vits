@@ -20,7 +20,7 @@ from data_utils import (
   TextAudioCollate,
   DistributedBucketSampler
 )
-from models import (
+from models1 import (
   SynthesizerTrn,
   MultiPeriodDiscriminator,
 )
@@ -43,6 +43,7 @@ def main():
   assert torch.cuda.is_available(), "CPU training is not allowed."
 
   n_gpus = torch.cuda.device_count()
+  n_gpus = 1
   os.environ['MASTER_ADDR'] = 'localhost'
   os.environ['MASTER_PORT'] = '11100'
 
@@ -82,7 +83,7 @@ def run(rank, n_gpus, hps):
         drop_last=False, collate_fn=collate_fn)
 
   net_g = SynthesizerTrn(
-      len(symbols),
+      hps,
       hps.data.filter_length // 2 + 1,
       hps.train.segment_size // hps.data.hop_length,
       **hps.model).cuda(rank)
