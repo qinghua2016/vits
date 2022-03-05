@@ -20,7 +20,7 @@ from data_utils import (
   TextAudioCollate,
   DistributedBucketSampler
 )
-from models1 import (
+from models import (
   SynthesizerTrn,
   MultiPeriodDiscriminator,
 )
