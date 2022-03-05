@@ -1,5 +1,6 @@
 import copy
 import math
+from math import sqrt
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -134,7 +135,7 @@ class DurationPredictor(nn.Module):
 
 class TextEncoder(nn.Module):
   def __init__(self,
-      n_vocab,
+      hparams,
       out_channels,
       hidden_channels,
       filter_channels,
@@ -143,7 +144,7 @@ class TextEncoder(nn.Module):
       kernel_size,
       p_dropout):
     super().__init__()
-    self.n_vocab = n_vocab
+    # self.n_vocab = n_vocab
     self.out_channels = out_channels
     self.hidden_channels = hidden_channels
     self.filter_channels = filter_channels
@@ -152,8 +153,36 @@ class TextEncoder(nn.Module):
     self.kernel_size = kernel_size
     self.p_dropout = p_dropout
 
-    self.emb = nn.Embedding(n_vocab, hidden_channels)#[178,192]
-    nn.init.normal_(self.emb.weight, 0.0, hidden_channels**-0.5)
+    # self.emb = nn.Embedding(n_vocab, hidden_channels)
+    # nn.init.normal_(self.emb.weight, 0.0, hidden_channels**-0.5)
+    #phone embeding
+    self.embedding_phone = nn.Embedding(
+        hparams.data.n_symbols_phone, hparams.data.symbols_embedding_dim_phone)
+    std = sqrt(2.0 / (hparams.data.n_symbols_phone + hparams.data.symbols_embedding_dim_phone))
+    val = sqrt(3.0) * std  # uniform bounds for std
+    self.embedding_phone.weight.data.uniform_(-val, val)
+
+    #wordcateg embeding
+    self.embedding_wordcateg = nn.Embedding(
+        hparams.data.n_symbols_wordcateg, hparams.data.symbols_embedding_dim_wordcateg)
+    std = sqrt(2.0 / (hparams.data.n_symbols_wordcateg + hparams.data.symbols_embedding_dim_wordcateg))
+    val = sqrt(3.0) * std  # uniform bounds for std
+    self.embedding_wordcateg.weight.data.uniform_(-val, val)
+
+        #tone embeding
+    self.embedding_tone = nn.Embedding(
+        hparams.data.n_symbols_tone, hparams.data.symbols_embedding_dim_tone)
+    std = sqrt(2.0 / (hparams.data.n_symbols_tone + hparams.data.symbols_embedding_dim_tone))
+    val = sqrt(3.0) * std  # uniform bounds for std
+    self.embedding_tone.weight.data.uniform_(-val, val)
+
+        #prosody embeding
+    self.embedding_prosody = nn.Embedding(
+        hparams.data.n_symbols_prosody, hparams.data.symbols_embedding_dim_prosody)
+    std = sqrt(2.0 / (hparams.data.n_symbols_prosody + hparams.data.symbols_embedding_dim_prosody))
+    val = sqrt(3.0) * std  # uniform bounds for std
+    self.embedding_prosody.weight.data.uniform_(-val, val)
+    
 
     self.encoder = attentions.Encoder(
       hidden_channels,
@@ -165,9 +194,20 @@ class TextEncoder(nn.Module):
     self.proj= nn.Conv1d(hidden_channels, out_channels * 2, 1)
 
   def forward(self, x, x_lengths):
-    x = self.emb(x) * math.sqrt(self.hidden_channels) # [b, t, h](16,173,192)
-    x = torch.transpose(x, 1, -1) # [b, h, t](16,192,173)
-    x_mask = torch.unsqueeze(commons.sequence_mask(x_lengths, x.size(2)), 1).to(x.dtype)#(16,1,173)
+    # x = self.emb(x) * math.sqrt(self.hidden_channels) # [b, t, h]
+    phone_seq = x[:,0,:]
+    word_seq = x[:,2,:]
+    tone_seq = x[:,1,:]
+    prosody_seq = x[:,3,:]
+    embedded_inputs_phone = self.embedding_phone(phone_seq)
+    embedded_inputs_wordcateg = self.embedding_wordcateg(word_seq)
+    embedded_inputs_tone = self.embedding_tone(tone_seq)
+    embedded_inputs_prosody = self.embedding_prosody(prosody_seq)
+    x = torch.cat((embedded_inputs_phone, embedded_inputs_wordcateg,
+        embedded_inputs_tone,embedded_inputs_prosody),2)
+
+    x = torch.transpose(x, 1, -1) # [b, h, t](16,47,192)
+    x_mask = torch.unsqueeze(commons.sequence_mask(x_lengths, x.size(2)), 1).to(x.dtype)#（16，1，55）
 
     x = self.encoder(x * x_mask, x_mask)
     stats = self.proj(x) * x_mask
@@ -393,7 +433,7 @@ class SynthesizerTrn(nn.Module):
   """
 
   def __init__(self, 
-    n_vocab,
+    hps,
     spec_channels,
     segment_size,
     inter_channels,
@@ -415,7 +455,7 @@ class SynthesizerTrn(nn.Module):
     **kwargs):
 
     super().__init__()
-    self.n_vocab = n_vocab
+    # self.n_vocab = n_vocab
     self.spec_channels = spec_channels
     self.inter_channels = inter_channels
     self.hidden_channels = hidden_channels
@@ -436,7 +476,7 @@ class SynthesizerTrn(nn.Module):
 
     self.use_sdp = use_sdp
 
-    self.enc_p = TextEncoder(n_vocab,
+    self.enc_p = TextEncoder(hps,
         inter_channels,
         hidden_channels,
         filter_channels,

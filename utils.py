@@ -139,7 +139,36 @@ def load_filepaths_and_text(filename, split="|"):
   with open(filename, encoding='utf-8') as f:
     filepaths_and_text = [line.strip().split(split) for line in f]
   return filepaths_and_text
+  
+def load_filepaths_and_text_pad(filename, split="|"):
+    with open(filename, encoding='utf-8') as f:
+        filepaths_and_text = [line.strip().split(split) for line in f]
+    files={}
+    for item in filepaths_and_text:
+        if item[0] not in files:
+            files[item[0]] = [item]
+        else:
+            files[item[0]] += [item]
+    max_num=0
+    for file in files:
+        if len(files[file]) > max_num:
+            max_num = len(files[file])
+    files_outputs=[]
+    for file in files:
+        iterms = files[file]
+        slen = len(iterms)
+        if slen < max_num:
+            files_outputs += iterms
+            num = int(max_num/slen)
+            assert num*slen <= max_num
+            for i in range(num-1):
+                files_outputs += iterms
+            if slen*num < max_num:
+                files_outputs += iterms[:max_num-slen*num]
+        else:
+            files_outputs += iterms
 
+    return filepaths_and_text
 
 def get_hparams(init=True):
   parser = argparse.ArgumentParser()
