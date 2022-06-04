@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 import commons
 import utils
 from data_utils import TextAudioLoader, TextAudioCollate, TextAudioSpeakerLoader, TextAudioSpeakerCollate
-from models1 import SynthesizerTrn
+from models import SynthesizerTrn
 from text.symbols import symbols
 from text.text import label_to_fusion_sequence, _speaker_to_id
 import librosa
@@ -35,7 +35,7 @@ net_g = SynthesizerTrn(
     hps.train.segment_size // hps.data.hop_length,
     **hps.model).cuda()
 _ = net_g.eval()
-modelpath="logs/ljs_base/G_510000.pth"
+modelpath="logs/my_base/G_10000.pth"
 model_prefix=modelpath.split('/')[-1].split('.')[0]
 if not os.path.exists(model_prefix):
         os.mkdir(model_prefix)

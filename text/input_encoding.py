@@ -84,7 +84,7 @@ wordcateg_set = [_pad, _eos] + ['B', 'M', 'E', 'S']
 prosody_set = [_pad, _eos] + ['0', '1', '2', '3', '4']
 
 # speaker
-speaker_set = ['qiezi','tuo','hmbb', 'hfnn', 'xll','labixx','miaomiao','junhong','SSB0005','SSB0009',
+speaker_set = ['qiezi','tuo','hmbb', 'hfnn', 'xll','labixx','miaomiao','junhong','biaobei','SSB0009',
 'SSB0011','SSB0012','SSB0016','SSB0018','SSB0033','SSB0038','SSB0043','SSB0057','SSB0073','SSB0080',
 'SSB0112','SSB0122','SSB0133','SSB0139','SSB0145','SSB0149','SSB0193','SSB0197','SSB0200','SSB0241',
 'SSB0246','SSB0261','SSB0267','SSB0273','SSB0287','SSB0288','SSB0299','SSB0307','SSB0309','SSB0315',

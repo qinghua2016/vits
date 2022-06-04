@@ -7,7 +7,7 @@
     "learning_rate": 2e-4,
     "betas": [0.8, 0.99],
     "eps": 1e-9,
-    "batch_size": 16,
+    "batch_size": 8,
     "fp16_run": true,
     "lr_decay": 0.999875,
     "segment_size": 8192,
@@ -17,8 +17,8 @@
     "c_kl": 1.0
   },
   "data": {
-    "training_files":"/home/research/data/tts_raw_data/miaomiao/train.txt",
-    "validation_files":"/home/research/data/tts_raw_data/miaomiao/val.txt",
+    "training_files":"/home/research/data/tts_raw_data/7speaker_train.txt",
+    "validation_files":"/home/research/data/tts_raw_data/7speaker_val.txt",
     "wavs_dir": "/home/research/data/tts_raw_data/",
     "labels_dir":"/home/research/data/tts_raw_data/",
     "text_cleaners":["english_cleaners2"],

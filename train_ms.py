@@ -43,8 +43,9 @@ def main():
   assert torch.cuda.is_available(), "CPU training is not allowed."
 
   n_gpus = torch.cuda.device_count()
+
   os.environ['MASTER_ADDR'] = 'localhost'
-  os.environ['MASTER_PORT'] = '80000'
+  os.environ['MASTER_PORT'] = '11110'
 
   hps = utils.get_hparams()
   mp.spawn(run, nprocs=n_gpus, args=(n_gpus, hps,))
@@ -81,7 +82,7 @@ def run(rank, n_gpus, hps):
         drop_last=False, collate_fn=collate_fn)
 
   net_g = SynthesizerTrn(
-      len(symbols),
+      hps,
       hps.data.filter_length // 2 + 1,
       hps.train.segment_size // hps.data.hop_length,
       n_speakers=hps.data.n_speakers,

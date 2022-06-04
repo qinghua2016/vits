@@ -156,6 +156,7 @@ class TextEncoder(nn.Module):
     # self.emb = nn.Embedding(n_vocab, hidden_channels)
     # nn.init.normal_(self.emb.weight, 0.0, hidden_channels**-0.5)
     #phone embeding
+    print(hparams)
     self.embedding_phone = nn.Embedding(
         hparams.data.n_symbols_phone, hparams.data.symbols_embedding_dim_phone)
     std = sqrt(2.0 / (hparams.data.n_symbols_phone + hparams.data.symbols_embedding_dim_phone))
