@@ -206,9 +206,10 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         audiopaths_sid_text_new = []
         lengths = []
         for speaker_name, name, text in self.audiopaths_sid_text:
-            if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
+            frame_num = os.path.getsize(self.wavs_dir+speaker_name+'/wav22k/') // (2 * self.hop_length)
+            if frame_num > 10 and frame_num < 800:
                 audiopaths_sid_text_new.append([speaker_name, name, text])
-                lengths.append(os.path.getsize(self.wavs_dir+speaker_name+'/wav22k/') // (2 * self.hop_length))
+                lengths.append(frame_num)
         self.audiopaths_sid_text = audiopaths_sid_text_new
         self.lengths = lengths
 
@@ -362,6 +363,8 @@ class DistributedBucketSampler(torch.utils.data.distributed.DistributedSampler):
             total_batch_size = self.num_replicas * self.batch_size
             rem = (total_batch_size - (len_bucket % total_batch_size)) % total_batch_size
             num_samples_per_bucket.append(len_bucket + rem)
+        print(num_samples_per_bucket)
+        print(self.boundaries)
         return buckets, num_samples_per_bucket
 
     def __iter__(self):

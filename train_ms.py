@@ -68,7 +68,7 @@ def run(rank, n_gpus, hps):
   train_sampler = DistributedBucketSampler(
       train_dataset,
       hps.train.batch_size,
-      [32,300,400,500,600,700,800,900,1000],
+      [300,400,500,600,700,800,900,1000],
       num_replicas=n_gpus,
       rank=rank,
       shuffle=True)
@@ -223,7 +223,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
           images=image_dict,
           scalars=scalar_dict)
 
-      if global_step % hps.train.eval_interval == 0:
+      if global_step % hps.train.eval_interval == 0 and global_step > 0:
         evaluate(hps, net_g, eval_loader, writer_eval)
         utils.save_checkpoint(net_g, optim_g, hps.train.learning_rate, epoch, os.path.join(hps.model_dir, "G_{}.pth".format(global_step)))
         utils.save_checkpoint(net_d, optim_d, hps.train.learning_rate, epoch, os.path.join(hps.model_dir, "D_{}.pth".format(global_step)))
